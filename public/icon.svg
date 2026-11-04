@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="100%" stop-color="#db2777" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#501423" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Background base rounded -->
+  <rect width="512" height="512" rx="100" fill="#f5ece1" />
+
+  <!-- Notebook Body -->
+  <g filter="url(#shadow)">
+    <!-- Main Book Cover -->
+    <rect x="70" y="56" width="380" height="400" rx="24" fill="url(#coverGrad)" />
+    
+    <!-- Spine binding -->
+    <rect x="70" y="56" width="60" height="400" rx="20" fill="#5d93dc" />
+    
+    <!-- Wire rings -->
+    <g fill="#f8c325" stroke="#d99a0a" stroke-width="3">
+      <rect x="90" y="100" width="40" height="14" rx="7" />
+      <rect x="90" y="160" width="40" height="14" rx="7" />
+      <rect x="90" y="220" width="40" height="14" rx="7" />
+      <rect x="90" y="280" width="40" height="14" rx="7" />
+      <rect x="90" y="340" width="40" height="14" rx="7" />
+      <rect x="90" y="400" width="40" height="14" rx="7" />
+    </g>
+
+    <!-- Cute Pastel Sticky Note -->
+    <rect x="175" y="125" width="220" height="220" rx="12" fill="#fef08a" transform="rotate(-3 285 235)" />
+    <!-- Fold corner -->
+    <polygon points="175,125 210,125 175,160" fill="#fde047" transform="rotate(-3 285 235)" opacity="0.6" />
+
+    <!-- Cute Heart in Sticky Note -->
+    <path d="M285 260 C285 260 230 220 230 185 C230 165 245 155 260 155 C272 155 281 162 285 170 C289 162 298 155 310 155 C325 155 340 165 340 185 C340 220 285 260 285 260 Z" fill="#f43f5e" transform="rotate(-3 285 235)" />
+
+    <!-- Gold Elastic band -->
+    <rect x="420" y="56" width="16" height="400" rx="6" fill="#eeb311" />
+  </g>
+</svg>

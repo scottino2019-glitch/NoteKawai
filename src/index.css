@@ -1,0 +1,394 @@
+@import "tailwindcss";
+
+:root {
+  --desk-bg: #f5ece1;
+  --page-pink: #f25097;
+  --page-lilac: #c6b5ea;
+  --page-cream: #fefdf9;
+  --ring-yellow: #f8c325;
+  --ring-gold: #d99a0a;
+  --elastic-yellow: #eeb311;
+  --accent-pink: #db2777;
+  --accent-rose: #f472b6;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background-color: var(--desk-bg);
+  background-image: 
+    radial-gradient(#e4d6c7 1.5px, transparent 1.5px),
+    radial-gradient(#ebdcd0 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+  min-height: 100vh;
+  color: #374151;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Washi Tape Header */
+.note-washi-tape {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.94);
+  color: #e11d48;
+  font-family: 'Arial Black', 'Mali', sans-serif;
+  font-weight: 900;
+  font-size: 19px;
+  letter-spacing: 5px;
+  padding: 3px 26px;
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  pointer-events: none;
+  z-index: 5;
+  border-left: 2px dashed rgba(225, 29, 72, 0.2);
+  border-right: 2px dashed rgba(225, 29, 72, 0.2);
+}
+
+/* Sticky Card Styles */
+.sticky-card {
+  position: relative;
+  border-radius: 8px;
+  padding: 8px 10px 10px;
+  box-shadow: 2px 4px 10px rgba(40, 15, 25, 0.16);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  width: 100%;
+}
+
+.sticky-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 2px 8px 16px rgba(40, 15, 25, 0.22);
+}
+
+.sticky-card.selected {
+  outline: 2px dashed #db2777;
+  outline-offset: 3px;
+  box-shadow: 0 8px 20px rgba(219, 39, 119, 0.28);
+  z-index: 20;
+}
+
+.card-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  user-select: none;
+}
+
+.card-pin-badge {
+  font-size: 10px;
+  color: rgba(0,0,0,0.35);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.card-del-btn {
+  background: #ffffff;
+  border: 1px solid #fecdd3;
+  color: #ef4444;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sticky-card.selected .card-del-btn {
+  display: flex;
+}
+.card-del-btn:hover { background: #fee2e2; }
+
+/* Corner Folds */
+.corner-tl::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 22px 22px 0 0;
+  border-color: #d1b46a transparent transparent transparent;
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.15));
+  z-index: 5;
+}
+.corner-tl::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 22px 22px;
+  border-color: transparent transparent #fef08a transparent;
+  z-index: 6;
+}
+
+.corner-tr::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 22px 22px 0;
+  border-color: transparent #d1b46a transparent transparent;
+  filter: drop-shadow(-1px 1px 1px rgba(0,0,0,0.15));
+  z-index: 5;
+}
+.corner-tr::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 22px 0 0 22px;
+  border-color: transparent transparent transparent #fef08a;
+  z-index: 6;
+}
+
+/* Note Textarea */
+.card-textarea {
+  width: 100%;
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  line-height: 1.45;
+  overflow-y: auto;
+}
+
+/* Distinct Shapes */
+.shape-square {
+  min-height: 165px;
+  width: 100%;
+}
+
+.shape-lined {
+  background: #ffffff !important;
+  border-top: 14px solid #fbcfe8;
+  background-image: repeating-linear-gradient(transparent, transparent 18px, #7dd3fc 19px, #7dd3fc 20px) !important;
+  background-position: 0 8px !important;
+  min-height: 135px;
+  max-width: 220px;
+}
+
+.shape-heart {
+  width: 140px !important;
+  height: 130px !important;
+  min-height: 130px !important;
+  max-width: 140px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 14px;
+  position: relative;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.shape-heart .card-header-bar {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 4;
+  width: auto;
+  margin: 0;
+}
+.shape-heart .card-pin-badge { display: none; }
+.shape-heart .card-textarea {
+  position: relative;
+  z-index: 2;
+  width: 95px;
+  height: 55px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.shape-daisy {
+  width: 135px !important;
+  height: 135px !important;
+  min-height: 135px !important;
+  max-width: 135px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent !important;
+  box-shadow: none !important;
+  position: relative;
+}
+.shape-daisy .card-header-bar {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 4;
+  width: auto;
+  margin: 0;
+}
+.shape-daisy .card-pin-badge { display: none; }
+.shape-daisy .card-textarea {
+  position: relative;
+  z-index: 2;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  text-align: center;
+  font-weight: 700;
+  color: #78350f !important;
+  font-size: 13px;
+  padding-top: 10px;
+}
+
+.shape-pennant {
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 50% 100%, 0 88%);
+  padding-bottom: 24px;
+  min-height: 170px;
+  max-width: 190px;
+  background-color: #dbeafe !important;
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(255,255,255,0.7) 18px, rgba(255,255,255,0.7) 36px),
+    repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(255,255,255,0.7) 18px, rgba(255,255,255,0.7) 36px) !important;
+}
+
+.shape-checklist {
+  background: #99f6e4 !important;
+  border-radius: 12px;
+  min-height: 180px;
+  max-width: 220px;
+}
+
+.checklist-pill-title {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0d9488;
+  border: none;
+  outline: none;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.checklist-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.chk-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1.5px solid #14b8a6;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.chk-box.checked {
+  background: #0d9488;
+  border-color: #0d9488;
+}
+.chk-box.checked::after {
+  content: '✓';
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.chk-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  color: #134e4a;
+  flex: 1;
+  font-family: inherit;
+}
+.chk-input.checked {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.shape-bubble {
+  background: #fbcfe8 !important;
+  border-radius: 16px 16px 16px 4px;
+  min-height: 140px;
+  max-width: 190px;
+  background-image: repeating-linear-gradient(transparent, transparent 18px, rgba(180, 83, 9, 0.25) 19px) !important;
+}
+
+/* Mascot Stickers */
+.mascot-container {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mascot-bottom-center {
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.mascot-bottom-right {
+  bottom: 6px;
+  right: 8px;
+}
+
+.emoji-sticker {
+  font-size: 26px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.22)) drop-shadow(0 0 1px #ffffff);
+  transform: rotate(-6deg);
+  user-select: none;
+}
+
+/* Patterns */
+.pattern-ruled {
+  background-image: 
+    repeating-linear-gradient(
+      transparent, 
+      transparent 19px, 
+      rgba(59, 130, 246, 0.35) 20px, 
+      rgba(59, 130, 246, 0.35) 21px
+    ) !important;
+}
+
+.pattern-grid {
+  background-image: 
+    linear-gradient(rgba(59, 130, 246, 0.3) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1.5px, transparent 1.5px) !important;
+  background-size: 16px 16px !important;
+}
+
+.pattern-dots {
+  background-image: 
+    radial-gradient(circle, rgba(75, 85, 99, 0.4) 1.5px, transparent 1.6px) !important;
+  background-size: 15px 15px !important;
+}

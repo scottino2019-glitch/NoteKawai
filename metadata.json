@@ -1,0 +1,6 @@
+{
+  "name": "Pastel Sticky Notebook & Planner",
+  "description": "Diario planner perpetuo e quaderno sticky notes kawaii per cellulare e desktop con copertina apribile, viste a pagina singola e doppia, stickers e supporto PWA offline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
