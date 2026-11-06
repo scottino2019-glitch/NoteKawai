@@ -12,6 +12,7 @@ interface NotesSectionProps {
   onPopSound?: () => void;
   onCheckSound?: () => void;
   viewMode: ViewMode;
+  onNavigatePage?: (page: 'left' | 'right') => void;
 }
 
 export const NotesSection: React.FC<NotesSectionProps> = ({
@@ -23,6 +24,7 @@ export const NotesSection: React.FC<NotesSectionProps> = ({
   onPopSound,
   onCheckSound,
   viewMode,
+  onNavigatePage,
 }) => {
   const leftNotes = notes.filter((n) => n.page === 'left');
   const rightNotes = notes.filter((n) => n.page === 'right');
@@ -31,12 +33,12 @@ export const NotesSection: React.FC<NotesSectionProps> = ({
   const showRight = viewMode === 'both' || viewMode === 'right';
 
   return (
-    <div className="flex w-full min-h-[660px]">
+    <div className={`flex ${viewMode === 'both' ? 'flex-col md:flex-row' : 'flex-col'} w-full min-h-0`}>
       {/* Left Page: Pink */}
       {showLeft && (
         <div
-          className={`notebook-page page-left flex-1 relative p-4 min-h-[660px] ${
-            viewMode === 'left' ? 'rounded-xl shadow-md' : 'rounded-l-xl'
+          className={`notebook-page page-left flex-1 relative p-3 sm:p-5 pb-8 min-h-[540px] sm:min-h-[640px] ${
+            viewMode === 'left' ? 'rounded-xl shadow-md' : 'rounded-t-xl md:rounded-tr-none md:rounded-l-xl'
           }`}
           style={{
             backgroundColor: 'var(--page-pink)',
@@ -51,31 +53,36 @@ export const NotesSection: React.FC<NotesSectionProps> = ({
           <div className="note-washi-tape">NOTE</div>
 
           {/* Grid for notes */}
-          <div className="page-left-grid mt-14 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="page-left-grid mt-14 sm:mt-16 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {leftNotes.map((note) => (
-              <StickyCard
-                key={note.id}
-                note={note}
-                isSelected={note.id === activeNoteId}
-                onSelect={() => onSelectNote(note.id)}
-                onDelete={() => onDeleteNote(note.id)}
-                onChange={(updates) => onUpdateNote(note.id, updates)}
-                onPopSound={onPopSound}
-                onCheckSound={onCheckSound}
-              />
+              <div key={note.id} className="w-full">
+                <StickyCard
+                  note={note}
+                  isSelected={note.id === activeNoteId}
+                  onSelect={() => onSelectNote(note.id)}
+                  onDelete={() => onDeleteNote(note.id)}
+                  onChange={(updates) => onUpdateNote(note.id, updates)}
+                  onPopSound={onPopSound}
+                  onCheckSound={onCheckSound}
+                />
+              </div>
             ))}
           </div>
         </div>
       )}
 
       {/* Spiral wire when both pages are visible */}
-      {viewMode === 'both' && <SpiralWire />}
+      {viewMode === 'both' && (
+        <div className="hidden md:flex">
+          <SpiralWire />
+        </div>
+      )}
 
       {/* Right Page: Lilac */}
       {showRight && (
         <div
-          className={`notebook-page page-right flex-1 relative p-4 min-h-[660px] ${
-            viewMode === 'right' ? 'rounded-xl shadow-md' : 'rounded-r-xl'
+          className={`notebook-page page-right flex-1 relative p-3 sm:p-5 pb-8 min-h-[540px] sm:min-h-[640px] ${
+            viewMode === 'right' ? 'rounded-xl shadow-md' : 'rounded-b-xl md:rounded-bl-none md:rounded-r-xl'
           }`}
           style={{
             backgroundColor: 'var(--page-lilac)',
@@ -86,7 +93,7 @@ export const NotesSection: React.FC<NotesSectionProps> = ({
             backgroundSize: '20px 20px',
           }}
         >
-          <div className="page-right-grid mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center justify-items-center">
+          <div className="page-right-grid mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-center justify-items-center">
             {rightNotes.map((note) => (
               <div key={note.id} className="w-full flex items-center justify-center">
                 <StickyCard

@@ -31,6 +31,9 @@ const STORAGE_KEY_NOTES = 'pastel_sticky_notebook_v8_notes';
 const STORAGE_KEY_WEEKLY = 'pastel_sticky_notebook_v8_weekly';
 const STORAGE_KEY_PLANNER = 'pastel_sticky_notebook_v8_planner';
 const STORAGE_KEY_COVER = 'pastel_sticky_notebook_v8_cover';
+const STORAGE_KEY_VIEW = 'pastel_sticky_notebook_v8_viewmode';
+
+
 
 export default function App() {
   // Audio sound effects
@@ -52,14 +55,27 @@ export default function App() {
   });
   const [isOpeningAnim, setIsOpeningAnim] = useState(false);
 
-  // Section & View mode
+  // Section & View mode (defaults to Single Page on mobile / tablet < 1024px)
   const [currentSection, setCurrentSection] = useState<SectionType>('notes');
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_VIEW);
+      if (saved === 'left' || saved === 'right' || saved === 'both') {
+        // If on small screen, ensure we don't start with squeezed both pages
+        if (typeof window !== 'undefined' && window.innerWidth < 1024 && saved === 'both') {
+          return 'left';
+        }
+        return saved;
+      }
+    } catch {}
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       return 'left';
     }
     return 'both';
   });
+
+  // Touch swipe gesture states for flipping pages on mobile
+  const [touchStartInfo, setTouchStartInfo] = useState<{ x: number; y: number; time: number } | null>(null);
 
   // Data States
   const [notes, setNotes] = useState<NoteItem[]>(() => {
@@ -121,11 +137,17 @@ export default function App() {
     } catch {}
   }, [isCoverOpen]);
 
-  // Adjust view mode dynamically on mobile
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_VIEW, viewMode);
+    } catch {}
+  }, [viewMode]);
+
+  // Handle responsive resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768 && viewMode === 'both') {
-        setViewMode('left');
+      if (window.innerWidth < 1024 && viewMode === 'both') {
+        // Do not force if user explicitly wanted both, but on small screen single page is cleaner
       }
     };
     window.addEventListener('resize', handleResize);
@@ -312,62 +334,78 @@ export default function App() {
     showToast('🗑️ Tutte le note sono state cancellate');
   };
 
+  // Page navigation helper
+  const navigateToPage = (target: 'left' | 'right') => {
+    if (viewMode !== target) {
+      setViewMode(target);
+      playPageFlip();
+    }
+  };
+
+  // Touch Swipe handlers - carefully filtered to avoid conflicting with inner scrollable elements like habit table dots
+  const onTouchStart = (e: React.TouchEvent) => {
+    // Only track single touch
+    if (e.touches.length !== 1) {
+      setTouchStartInfo(null);
+      return;
+    }
+
+    const target = e.target as HTMLElement | null;
+    // Don't track swipe if touch originated on interactive or horizontally scrollable elements (e.g. habit table, dots, stickers, inputs)
+    if (
+      target &&
+      target.closest(
+        '.no-page-swipe, input, textarea, select, button, .habit-table, .overflow-x-auto, [data-no-swipe="true"]'
+      )
+    ) {
+      setTouchStartInfo(null);
+      return;
+    }
+
+    setTouchStartInfo({
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      time: Date.now(),
+    });
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartInfo) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const diffX = touchStartInfo.x - touchEndX;
+    const diffY = touchStartInfo.y - touchEndY;
+    const elapsed = Date.now() - touchStartInfo.time;
+
+    setTouchStartInfo(null);
+
+    // Only count as intentional page flip swipe if:
+    // 1. Horizontal movement is at least 70px
+    // 2. Horizontal movement is strictly dominant (> 1.8x vertical movement)
+    // 3. Quick flick gesture (< 550ms)
+    if (Math.abs(diffX) > 70 && Math.abs(diffX) > Math.abs(diffY) * 1.8 && elapsed < 550) {
+      if (diffX > 0 && viewMode === 'left') {
+        // Swiped Left -> go to Right Page (Page 2)
+        navigateToPage('right');
+      } else if (diffX < 0 && viewMode === 'right') {
+        // Swiped Right -> go to Left Page (Page 1)
+        navigateToPage('left');
+      }
+    }
+  };
+
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5ece1] relative select-none">
-      {/* Offline connectivity indicator */}
-      {!isOnline && (
-        <div className="fixed top-2 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-amber-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
-          <span className="w-2 h-2 rounded-full bg-white" />
-          <span>Modalità Offline • Dati salvati in locale</span>
-        </div>
-      )}
-
-      {/* When Cover is Closed: Show Realistic Tactile Cover */}
+    <div className="min-h-screen flex flex-col bg-[#f5ece1] relative">
+      {/* When Cover is Closed: Show Realistic Tactile Cover Cleanly */}
       {!isCoverOpen ? (
-        <div className="flex-1 flex flex-col justify-center items-center py-8 px-3">
+        <div className="flex-1 flex flex-col justify-center items-center py-6 sm:py-12 px-3">
           <NotebookCover onOpen={handleOpenCover} isOpening={isOpeningAnim} />
-
-          {/* Quick bottom toolbar when closed */}
-          <div className="mt-4 flex items-center gap-3">
-            {isInstallable && (
-              <button
-                type="button"
-                onClick={install}
-                className="px-4 py-2 rounded-xl bg-pink-600 text-white font-bold text-xs shadow-md hover:bg-pink-700 transition flex items-center gap-1.5"
-              >
-                <span>📲</span>
-                <span>Installa come PWA</span>
-              </button>
-            )}
-
-            {isIOS && (
-              <button
-                type="button"
-                onClick={() => setShowIOSGuide(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-white border border-pink-200 text-pink-700 font-bold text-xs shadow-sm hover:bg-pink-50 transition flex items-center gap-1.5"
-              >
-                <span>📲</span>
-                <span>Installa su iPhone</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={() => {
-                setSoundEnabled(!soundEnabled);
-                playPop();
-              }}
-              className="p-2 rounded-xl bg-white border border-pink-200 text-pink-700 shadow-sm hover:bg-pink-50 transition text-sm font-bold"
-              title="Suoni"
-            >
-              {soundEnabled ? '🔊 Suoni On' : '🔇 Suoni Off'}
-            </button>
-          </div>
         </div>
       ) : (
         /* When Cover is Open: Show Complete Interactive Notebook */
         <>
-          {/* Header */}
+          {/* Authentic Cute Header with Unified Navigation */}
           <Header
             viewMode={viewMode}
             onChangeViewMode={(mode) => {
@@ -390,66 +428,24 @@ export default function App() {
             onShowIOSGuide={() => setShowIOSGuide(true)}
           />
 
-          {/* Note Contextual Formatting Toolbar (when in notes section) */}
+          {/* Note Contextual Formatting Toolbar (compact single-row when in notes section) */}
           {currentSection === 'notes' && (
             <NoteToolbar
               activeNote={activeNote}
               onUpdateNote={handleUpdateActiveNote}
               onDuplicate={handleDuplicateNote}
               onDelete={handleDeleteNote}
+              onClose={() => setActiveNoteId(null)}
               onPopSound={playPop}
             />
           )}
 
-          {/* Mobile Page Turn Bar (When single page is viewed, e.g. on phones) */}
-          {viewMode !== 'both' && (
-            <div className="bg-pink-100/70 border-b border-pink-200 px-4 py-1.5 flex items-center justify-between text-xs font-bold text-pink-800">
-              <button
-                type="button"
-                disabled={viewMode === 'left'}
-                onClick={() => {
-                  setViewMode('left');
-                  playPageFlip();
-                }}
-                className={`flex items-center gap-1 px-3 py-1 rounded-full transition ${
-                  viewMode === 'left'
-                    ? 'bg-pink-600 text-white shadow-xs'
-                    : 'bg-white text-pink-700 hover:bg-pink-50'
-                }`}
-              >
-                <span>◀</span>
-                <span>Pagina Sinistra (1)</span>
-              </button>
-
-              <span className="text-[11px] text-pink-600 font-semibold hidden sm:inline">
-                Tocca per girare pagina
-              </span>
-
-              <button
-                type="button"
-                disabled={viewMode === 'right'}
-                onClick={() => {
-                  setViewMode('right');
-                  playPageFlip();
-                }}
-                className={`flex items-center gap-1 px-3 py-1 rounded-full transition ${
-                  viewMode === 'right'
-                    ? 'bg-pink-600 text-white shadow-xs'
-                    : 'bg-white text-pink-700 hover:bg-pink-50'
-                }`}
-              >
-                <span>Pagina Destra (2)</span>
-                <span>▶</span>
-              </button>
-            </div>
-          )}
-
           {/* Main Notebook Workspace Canvas */}
-          <main className="flex-1 p-2 sm:p-4 pb-20 flex justify-center items-start overflow-x-auto">
+          <main className="flex-1 p-1.5 sm:p-4 pb-20 flex justify-center items-start overflow-x-hidden">
             <div className="notebook-wrapper relative w-full max-w-[960px] flex justify-center drop-shadow-[0_16px_26px_rgba(50,20,35,0.18)]">
               {/* Outer Notebook Cover Base */}
               <div 
-                className="notebook-cover-base relative w-full p-2.5 sm:p-3.5 sm:pr-7 rounded-2xl shadow-[inset_0_2px_5px_rgba(255,255,255,0.5),inset_0_-4px_7px_rgba(0,0,0,0.35)]"
+                className="notebook-cover-base relative w-full p-1.5 sm:p-3 sm:pr-6 md:pr-8 rounded-2xl shadow-[inset_0_2px_5px_rgba(255,255,255,0.5),inset_0_-4px_7px_rgba(0,0,0,0.35)]"
                 style={{
                   backgroundColor: '#5d93dc',
                   backgroundImage: `
@@ -461,9 +457,52 @@ export default function App() {
                   backgroundPosition: '0 0, 22px 22px, 12px 30px',
                 }}
               >
-                {/* Side / Top Binder Tab Dividers */}
-                {/* On desktop: vertical tabs on the right side */}
-                <div className="hidden md:flex absolute -right-3.5 top-8 flex-col gap-2 z-30">
+                {/* On mobile: 5 authentic, comfortable Filofax binder tabs */}
+                <div className="lg:hidden w-full flex items-end justify-between gap-1 sm:gap-1.5 mb-2 px-0.5 z-20">
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchSection('notes')}
+                    className={`binder-tab-mobile tab-color-notes ${currentSection === 'notes' ? 'active' : ''}`}
+                  >
+                    <span className="text-sm">🌸</span>
+                    <span>NOTE</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchSection('weekly')}
+                    className={`binder-tab-mobile tab-color-week ${currentSection === 'weekly' ? 'active' : ''}`}
+                  >
+                    <span className="text-sm">📅</span>
+                    <span>SETT.</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchSection('daily')}
+                    className={`binder-tab-mobile tab-color-day ${currentSection === 'daily' ? 'active' : ''}`}
+                  >
+                    <span className="text-sm">☀️</span>
+                    <span>DAY</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchSection('diary')}
+                    className={`binder-tab-mobile tab-color-diary ${currentSection === 'diary' ? 'active' : ''}`}
+                  >
+                    <span className="text-sm">📖</span>
+                    <span>DIARY</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchSection('habits')}
+                    className={`binder-tab-mobile tab-color-habits ${currentSection === 'habits' ? 'active' : ''}`}
+                  >
+                    <span className="text-sm">🎯</span>
+                    <span>HABIT</span>
+                  </button>
+                </div>
+
+                {/* Side Binder Tab Dividers (Desktop: vertical tabs on the right side) */}
+                <div className="hidden lg:flex absolute -right-3.5 top-8 flex-col gap-2 z-30">
                   <button
                     type="button"
                     onClick={() => handleSwitchSection('notes')}
@@ -506,65 +545,22 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* On mobile: horizontal tab bar above the spread */}
-                <div className="md:hidden flex items-center justify-between gap-1 mb-2 overflow-x-auto scrollbar-none py-1">
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchSection('notes')}
-                    className={`px-3 py-1 rounded-lg text-xs font-black text-white shrink-0 shadow-sm transition ${
-                      currentSection === 'notes' ? 'bg-pink-600 scale-105 ring-2 ring-white' : 'bg-pink-400 opacity-80'
-                    }`}
-                  >
-                    🌸 NOTE
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchSection('weekly')}
-                    className={`px-3 py-1 rounded-lg text-xs font-black text-white shrink-0 shadow-sm transition ${
-                      currentSection === 'weekly' ? 'bg-purple-600 scale-105 ring-2 ring-white' : 'bg-purple-400 opacity-80'
-                    }`}
-                  >
-                    📅 SETT.
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchSection('daily')}
-                    className={`px-3 py-1 rounded-lg text-xs font-black text-white shrink-0 shadow-sm transition ${
-                      currentSection === 'daily' ? 'bg-sky-600 scale-105 ring-2 ring-white' : 'bg-sky-400 opacity-80'
-                    }`}
-                  >
-                    ☀️ DAY
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchSection('diary')}
-                    className={`px-3 py-1 rounded-lg text-xs font-black text-white shrink-0 shadow-sm transition ${
-                      currentSection === 'diary' ? 'bg-emerald-600 scale-105 ring-2 ring-white' : 'bg-emerald-400 opacity-80'
-                    }`}
-                  >
-                    📖 DIARY
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchSection('habits')}
-                    className={`px-3 py-1 rounded-lg text-xs font-black text-white shrink-0 shadow-sm transition ${
-                      currentSection === 'habits' ? 'bg-amber-600 scale-105 ring-2 ring-white' : 'bg-amber-400 opacity-80'
-                    }`}
-                  >
-                    🎯 HABIT
-                  </button>
-                </div>
+
 
                 {/* Elastic band on right */}
-                <div className="hidden md:block absolute -right-2 top-[70%] w-4 h-18 bg-[#eeb311] rounded-r-lg shadow-md z-30 pointer-events-none" />
+                <div className="hidden lg:block absolute -right-2 top-[70%] w-4 h-18 bg-[#eeb311] rounded-r-lg shadow-md z-30 pointer-events-none" />
 
-                {/* Open Pages Spread */}
-                <div className="notebook-spread bg-[#fdfbf7] rounded-xl relative min-h-[660px] overflow-hidden shadow-inner">
+                {/* Open Pages Spread (No overflow-hidden to prevent cutting off!) */}
+                <div 
+                  className="notebook-spread bg-[#fdfbf7] rounded-xl relative min-h-[520px] sm:min-h-[640px] shadow-inner pb-6 touch-pan-y"
+                  onTouchStart={onTouchStart}
+                  onTouchEnd={onTouchEnd}
+                >
                   {currentSection === 'notes' && (
                     <NotesSection
                       notes={notes}
                       activeNoteId={activeNoteId}
-                      onSelectNote={(id) => setActiveNoteId(id)}
+                      onSelectNote={(id) => setActiveNoteId((prev) => (prev === id ? prev : id))}
                       onDeleteNote={(id) => handleDeleteNote(id)}
                       onUpdateNote={(id, updates) =>
                         setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, ...updates } : n)))
@@ -572,6 +568,7 @@ export default function App() {
                       onPopSound={playPop}
                       onCheckSound={playCheck}
                       viewMode={viewMode}
+                      onNavigatePage={navigateToPage}
                     />
                   )}
 
@@ -582,6 +579,7 @@ export default function App() {
                       viewMode={viewMode}
                       onPopSound={playPop}
                       onCheckSound={playCheck}
+                      onNavigatePage={navigateToPage}
                     />
                   )}
 
@@ -591,6 +589,7 @@ export default function App() {
                       onChange={(upd) => setPlannerData((prev) => ({ ...prev, ...upd }))}
                       viewMode={viewMode}
                       onPopSound={playPop}
+                      onNavigatePage={navigateToPage}
                     />
                   )}
 
@@ -600,6 +599,7 @@ export default function App() {
                       onChange={(upd) => setPlannerData((prev) => ({ ...prev, ...upd }))}
                       viewMode={viewMode}
                       onPopSound={playPop}
+                      onNavigatePage={navigateToPage}
                     />
                   )}
 
@@ -610,6 +610,7 @@ export default function App() {
                       viewMode={viewMode}
                       onPopSound={playPop}
                       onCheckSound={playCheck}
+                      onNavigatePage={navigateToPage}
                     />
                   )}
                 </div>

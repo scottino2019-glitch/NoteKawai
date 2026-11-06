@@ -58,6 +58,7 @@ body {
   flex-direction: column;
   cursor: pointer;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .sticky-card:hover {
@@ -167,30 +168,36 @@ body {
   border: none;
   outline: none;
   resize: none;
-  line-height: 1.45;
+  line-height: 1.5;
+  font-size: 16px;
   overflow-y: auto;
+  box-sizing: border-box;
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }
 
-/* Distinct Shapes */
+/* Distinct Shapes - Responsive & Never Cut Off */
 .shape-square {
   min-height: 165px;
   width: 100%;
+  max-width: 100%;
 }
 
 .shape-lined {
   background: #ffffff !important;
   border-top: 14px solid #fbcfe8;
-  background-image: repeating-linear-gradient(transparent, transparent 18px, #7dd3fc 19px, #7dd3fc 20px) !important;
+  background-image: repeating-linear-gradient(transparent, transparent 20px, #7dd3fc 21px, #7dd3fc 22px) !important;
   background-position: 0 8px !important;
-  min-height: 135px;
-  max-width: 220px;
+  min-height: 145px;
+  width: 100%;
+  max-width: 260px;
 }
 
 .shape-heart {
-  width: 140px !important;
-  height: 130px !important;
-  min-height: 130px !important;
-  max-width: 140px !important;
+  width: 145px !important;
+  height: 135px !important;
+  min-height: 135px !important;
+  max-width: 145px !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -200,6 +207,7 @@ body {
   position: relative;
   background: transparent !important;
   box-shadow: none !important;
+  margin: 0 auto;
 }
 .shape-heart .card-header-bar {
   position: absolute;
@@ -213,17 +221,17 @@ body {
 .shape-heart .card-textarea {
   position: relative;
   z-index: 2;
-  width: 95px;
-  height: 55px;
+  width: 100px;
+  height: 65px;
   text-align: center;
   font-size: 15px;
 }
 
 .shape-daisy {
-  width: 135px !important;
-  height: 135px !important;
-  min-height: 135px !important;
-  max-width: 135px !important;
+  width: 140px !important;
+  height: 140px !important;
+  min-height: 140px !important;
+  max-width: 140px !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -232,6 +240,7 @@ body {
   background: transparent !important;
   box-shadow: none !important;
   position: relative;
+  margin: 0 auto;
 }
 .shape-daisy .card-header-bar {
   position: absolute;
@@ -245,21 +254,22 @@ body {
 .shape-daisy .card-textarea {
   position: relative;
   z-index: 2;
-  width: 68px;
-  height: 68px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   text-align: center;
   font-weight: 700;
   color: #78350f !important;
-  font-size: 13px;
+  font-size: 14px;
   padding-top: 10px;
 }
 
 .shape-pennant {
   clip-path: polygon(0 0, 100% 0, 100% 88%, 50% 100%, 0 88%);
   padding-bottom: 24px;
-  min-height: 170px;
-  max-width: 190px;
+  min-height: 175px;
+  width: 100%;
+  max-width: 250px;
   background-color: #dbeafe !important;
   background-image: 
     repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(255,255,255,0.7) 18px, rgba(255,255,255,0.7) 36px),
@@ -269,34 +279,35 @@ body {
 .shape-checklist {
   background: #99f6e4 !important;
   border-radius: 12px;
-  min-height: 180px;
-  max-width: 220px;
+  min-height: 185px;
+  width: 100%;
+  max-width: 270px;
 }
 
 .checklist-pill-title {
   background: #ffffff;
   border-radius: 8px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 700;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 800;
   color: #0d9488;
   border: none;
   outline: none;
   text-align: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .checklist-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 8px;
+  margin-bottom: 5px;
 }
 
 .chk-box {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
   background: #ffffff;
   border: 1.5px solid #14b8a6;
   cursor: pointer;
@@ -313,7 +324,7 @@ body {
 .chk-box.checked::after {
   content: '✓';
   color: #ffffff;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 900;
 }
 
@@ -321,7 +332,8 @@ body {
   background: transparent;
   border: none;
   outline: none;
-  font-size: 12px;
+  font-size: 15px;
+  font-weight: 500;
   color: #134e4a;
   flex: 1;
   font-family: inherit;
@@ -334,8 +346,9 @@ body {
 .shape-bubble {
   background: #fbcfe8 !important;
   border-radius: 16px 16px 16px 4px;
-  min-height: 140px;
-  max-width: 190px;
+  min-height: 135px;
+  width: 100%;
+  max-width: 240px;
   background-image: repeating-linear-gradient(transparent, transparent 18px, rgba(180, 83, 9, 0.25) 19px) !important;
 }
 
@@ -359,7 +372,7 @@ body {
 }
 
 .emoji-sticker {
-  font-size: 26px;
+  font-size: 24px;
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -391,4 +404,81 @@ body {
   background-image: 
     radial-gradient(circle, rgba(75, 85, 99, 0.4) 1.5px, transparent 1.6px) !important;
   background-size: 15px 15px !important;
+}
+
+/* Side Binder Tabs */
+.binder-tab {
+  width: 36px;
+  height: 66px;
+  border-radius: 0 12px 12px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Mali', cursive;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 1.5px;
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.18);
+  transition: width 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  user-select: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border-left: none;
+}
+.binder-tab:hover {
+  width: 44px;
+  transform: translateX(4px);
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.25);
+}
+.binder-tab.active {
+  width: 50px;
+  font-weight: 900;
+  transform: translateX(6px);
+  box-shadow: 5px 4px 14px rgba(0,0,0,0.3);
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
+.tab-color-notes { background: linear-gradient(135deg, #fb7185, #e11d48); }
+.tab-color-week { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+.tab-color-day { background: linear-gradient(135deg, #38bdf8, #0284c7); }
+.tab-color-diary { background: linear-gradient(135deg, #34d399, #059669); }
+.tab-color-habits { background: linear-gradient(135deg, #fbbf24, #d97706); }
+
+/* Mobile Top Horizontal Binder Index Tabs - Comfortable, readable, and authentic */
+.binder-tab-mobile {
+  height: 36px;
+  flex: 1 1 0%;
+  min-width: 0;
+  padding: 0 4px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-family: 'Mali', cursive;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.14);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  border-bottom: none;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.binder-tab-mobile:hover {
+  transform: translateY(-2px);
+}
+.binder-tab-mobile.active {
+  height: 40px;
+  font-weight: 900;
+  transform: translateY(-3px);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.25);
+  border-color: rgba(255, 255, 255, 0.95);
+  z-index: 5;
 }

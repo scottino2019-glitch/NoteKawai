@@ -29,7 +29,11 @@ const STICKERS_LIST = [
 
 export const StickersDrawer: React.FC<StickersDrawerProps> = ({ onSelectSticker }) => {
   return (
-    <div className="fixed bottom-3 right-3 max-w-[94vw] bg-white/95 backdrop-blur-md border-2 border-pink-200 rounded-2xl px-3 py-1.5 shadow-xl flex items-center gap-1.5 z-40 overflow-x-auto scrollbar-none">
+    <div 
+      className="no-page-swipe fixed bottom-3 right-3 max-w-[94vw] bg-white/95 backdrop-blur-md border-2 border-pink-200 rounded-2xl px-3 py-1.5 shadow-xl flex items-center gap-1.5 z-40 overflow-x-auto scrollbar-none"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
       <span className="text-[10px] font-extrabold text-pink-600 uppercase tracking-wider shrink-0 select-none mr-1">
         Stickers Pack:
       </span>

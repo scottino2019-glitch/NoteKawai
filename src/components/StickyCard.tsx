@@ -117,7 +117,9 @@ export const StickyCard: React.FC<StickyCardProps> = ({
 
   return (
     <div
-      onClick={onSelect}
+      onClick={() => {
+        if (!isSelected) onSelect();
+      }}
       className={`sticky-card ${shapeClass} ${getPatternClass()} ${getCornerClass()} ${
         isSelected ? 'selected' : ''
       }`}
@@ -148,13 +150,19 @@ export const StickyCard: React.FC<StickyCardProps> = ({
         <div className="relative z-10 flex flex-col flex-1 w-full">
           <input
             type="text"
-            className="checklist-pill-title"
+            className="checklist-pill-title select-text"
             value={note.title || 'TO DO LIST'}
             onChange={(e) => onChange({ title: e.target.value })}
             placeholder="TITOLO"
-            onFocus={onSelect}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isSelected) onSelect();
+            }}
+            onFocus={() => {
+              if (!isSelected) onSelect();
+            }}
           />
-          <div className="checklist-items-wrap flex-1 flex flex-col gap-1 overflow-y-auto max-h-[140px] pr-1">
+          <div className="checklist-items-wrap flex-1 flex flex-col gap-1.5 overflow-y-auto max-h-[140px] pr-1">
             {(note.checklist || []).map((item, idx) => (
               <div key={item.id} className="checklist-row">
                 <div
@@ -163,11 +171,17 @@ export const StickyCard: React.FC<StickyCardProps> = ({
                 />
                 <input
                   type="text"
-                  className={`chk-input ${item.done ? 'checked' : ''}`}
+                  className={`chk-input text-base font-['Patrick_Hand',cursive] select-text ${item.done ? 'checked' : ''}`}
                   value={item.text}
                   onChange={(e) => handleItemTextChange(item.id, e.target.value)}
                   onKeyDown={(e) => handleKeyDownItem(idx, e)}
-                  onFocus={onSelect}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isSelected) onSelect();
+                  }}
+                  onFocus={() => {
+                    if (!isSelected) onSelect();
+                  }}
                 />
               </div>
             ))}
@@ -175,21 +189,27 @@ export const StickyCard: React.FC<StickyCardProps> = ({
           <button
             type="button"
             onClick={handleAddChecklistItem}
-            className="text-[11px] font-bold text-teal-800 text-left mt-1 hover:underline cursor-pointer"
+            className="text-xs font-bold text-teal-900 text-left mt-1 hover:underline cursor-pointer"
           >
             + Aggiungi elemento
           </button>
         </div>
       ) : (
         <textarea
-          className="card-textarea relative z-10"
+          className="card-textarea relative z-10 select-text"
           value={note.text || ''}
           placeholder="Scrivi qui..."
           onChange={(e) => onChange({ text: e.target.value })}
-          onFocus={onSelect}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!isSelected) onSelect();
+          }}
+          onFocus={() => {
+            if (!isSelected) onSelect();
+          }}
           style={{
             fontFamily: note.fontFamily,
-            fontSize: note.fontSize,
+            fontSize: note.fontSize && parseInt(note.fontSize) < 16 ? '16px' : note.fontSize || '16px',
             color: note.fontColor,
             textAlign: note.textAlign,
           }}
